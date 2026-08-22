@@ -1,0 +1,14 @@
+[
+	{"host":"gateway.pipeworx.io","endpoints":1312,"pct":11.8},
+	{"host":"server.smithery.ai","endpoints":216,"pct":1.9},
+	{"host":"api.mcp.ai","endpoints":99,"pct":0.9},
+	{"host":"mcp.apify.com","endpoints":65,"pct":0.6},
+	{"host":"tooloracle.io","endpoints":57,"pct":0.5},
+	{"host":"api.lazy-mac.com","endpoints":54,"pct":0.5},
+	{"host":"mcp.olyport.com","endpoints":38,"pct":0.3},
+	{"host":"api.meok.ai","endpoints":34,"pct":0.3},
+	{"host":"nexgendata-mcp-proxy.steve-corbeil.workers.dev","endpoints":33,"pct":0.3},
+	{"host":"antibody-package-occasional-floppy.trycloudflare.com","endpoints":30,"pct":0.3},
+	{"host":"mcp.viridisconservation.com","endpoints":30,"pct":0.3},
+	{"host":"waystation.ai","endpoints":24,"pct":0.2}
+]

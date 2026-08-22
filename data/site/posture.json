@@ -1,0 +1,9 @@
+[
+	{"posture":"open","endpoints":3511,"hosts":3201},
+	{"posture":"required","endpoints":3092,"hosts":2783},
+	{"posture":"optional","endpoints":2566,"hosts":1065},
+	{"posture":"broken","endpoints":1718,"hosts":1344},
+	{"posture":"paywalled","endpoints":118,"hosts":117},
+	{"posture":"partial","endpoints":92,"hosts":85},
+	{"posture":"throttled","endpoints":24,"hosts":24}
+]

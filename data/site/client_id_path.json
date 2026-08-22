@@ -1,0 +1,6 @@
+[
+	{"client_id_path":"dcr","auth_servers":2226,"pct":80.4},
+	{"client_id_path":"cimd","auth_servers":398,"pct":14.4},
+	{"client_id_path":"preregistered","auth_servers":113,"pct":4.1},
+	{"client_id_path":null,"auth_servers":33,"pct":1.2}
+]

@@ -1,0 +1,6 @@
+[
+	{"shape":"local","servers":10109},
+	{"shape":"remote","servers":9817},
+	{"shape":"hybrid","servers":1133},
+	{"shape":"undeployable","servers":364}
+]

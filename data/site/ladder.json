@@ -1,0 +1,6 @@
+[
+	{"depth":0,"rung":"unreachable","endpoints":1860,"hosts":1485},
+	{"depth":1,"rung":"gated at transport","endpoints":3043,"hosts":2746},
+	{"depth":2,"rung":"gated at tools/list","endpoints":141,"hosts":122},
+	{"depth":3,"rung":"open through tools/list","endpoints":6077,"hosts":4266}
+]
