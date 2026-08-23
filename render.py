@@ -232,12 +232,8 @@ def access_journey(rows):
             f'<text class="label-muted" x="{x}" y="561" text-anchor="middle">{count:,} endpoints</text>'
             '</g>'
         )
-    parts.extend([
-        '<text class="footnote" x="450" y="592" text-anchor="middle">'
-        '100 marks represent 11,121 probed endpoints · partial, throttled, and 402 outcomes are labelled in the text'
-        '</text></g>'
-    ])
-    return svg("".join(parts), 610,
+    parts.append('</g>')
+    return svg("".join(parts), 580,
                "How far an anonymous client gets across the MCP registry",
                "One hundred marks represent the 11,121 probed remote endpoints. "
                "They separate into endpoints that did not answer, require authentication, "
@@ -261,26 +257,18 @@ def access_journey_mobile(rows):
     for k in sorted(order, key=lambda k: exact[k] - dots[k], reverse=True)[:100-sum(dots.values())]:
         dots[k] += 1
 
-    parts = [
-        '<text class="mobile-title" x="180" y="20" text-anchor="middle">'
-        '100 remote MCP endpoints</text>',
-        '<g class="endpoint-field endpoint-field-mobile">',
-    ]
+    parts = ['<g class="endpoint-field endpoint-field-mobile">']
     i = 0
     for key in order:
         for _ in range(dots[key]):
             x = 78 + (i % 10) * 23
-            y = 43 + (i // 10) * 23
+            y = 12 + (i // 10) * 23
             parts.append(
                 f'<circle class="endpoint endpoint-{key}" cx="{x}" cy="{y}" r="7"/>'
             )
             i += 1
-    parts.extend([
-        '</g>',
-        '<text class="footnote" x="180" y="272" text-anchor="middle">'
-        'one mark ≈ one percent of the probed registry</text>',
-    ])
-    return svg("".join(parts), 286,
+    parts.append('</g>')
+    return svg("".join(parts), 234,
                "Anonymous access outcomes across the MCP registry",
                "One hundred marks represent the 11,121 remote endpoints. "
                "Scroll steps highlight endpoints that did not answer, require "
