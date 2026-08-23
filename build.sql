@@ -5,7 +5,8 @@
 CREATE OR REPLACE TABLE raw AS
 SELECT regexp_extract(filename, 'snapshots/([0-9-]+)/', 1) AS snapshot, server, _meta
 FROM read_json('data/snapshots/*/servers.jsonl.gz',
-                format = 'newline_delimited', filename = true, sample_size = -1);
+                format = 'newline_delimited', filename = true, sample_size = -1)
+WHERE regexp_extract(filename, 'snapshots/([0-9-]+)/', 1) = getvariable('snapshot');
 
 CREATE OR REPLACE TABLE servers AS
 SELECT

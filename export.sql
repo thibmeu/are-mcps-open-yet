@@ -51,7 +51,7 @@ COPY (
     JOIN remotes r        ON r.snapshot = s.snapshot AND r.server_name = s.name
     JOIN endpoint_auth a  ON a.snapshot = r.snapshot AND a.url = r.url
     LEFT JOIN probes p    ON p.snapshot = r.snapshot AND p.url = r.url
-    GROUP BY 1, 2 ORDER BY servers DESC
+    GROUP BY 1, 2 ORDER BY servers DESC, l.sensitivity, a.posture
 ) TO 'data/site/sensitivity.json' (FORMAT JSON, ARRAY true);
 
 -- 6. The consent ledger. Gated endpoints against distinct authorization servers:

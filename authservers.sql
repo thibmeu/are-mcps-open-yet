@@ -5,6 +5,7 @@ SELECT regexp_extract(filename, 'snapshots/([0-9-]+)/', 1) AS snapshot, * EXCLUD
 FROM read_json('data/snapshots/*/authservers.jsonl.gz',
                 format = 'newline_delimited', filename = true,
                 union_by_name = true, sample_size = -1)
+WHERE regexp_extract(filename, 'snapshots/([0-9-]+)/', 1) = getvariable('snapshot')
 QUALIFY row_number() OVER (PARTITION BY snapshot, issuer ORDER BY fetched_at DESC) = 1;
 
 -- Each endpoint inherits the best client_id path any of its authorization

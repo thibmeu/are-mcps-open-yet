@@ -5,6 +5,7 @@ SELECT regexp_extract(filename, 'snapshots/([0-9-]+)/', 1) AS snapshot, * EXCLUD
 FROM read_json('data/snapshots/*/probes.jsonl.gz',
                 format = 'newline_delimited', filename = true,
                 union_by_name = true, sample_size = -1)
+WHERE regexp_extract(filename, 'snapshots/([0-9-]+)/', 1) = getvariable('snapshot')
 -- --retry appends a second row per URL; last attempt wins.
 QUALIFY row_number() OVER (PARTITION BY snapshot, url ORDER BY probed_at DESC) = 1;
 

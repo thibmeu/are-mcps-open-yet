@@ -3,6 +3,7 @@
 CREATE OR REPLACE TABLE labels AS
 SELECT * FROM read_json('data/snapshots/*/labels.jsonl.gz',
                          format = 'newline_delimited', union_by_name = true, sample_size = -1)
+WHERE snapshot = getvariable('snapshot')
 QUALIFY row_number() OVER (PARTITION BY snapshot, name ORDER BY labelled_at DESC) = 1;
 
 -- Compare inferred capability sensitivity with observed access posture. These
