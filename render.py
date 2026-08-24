@@ -21,6 +21,7 @@ import pathlib
 SITE = pathlib.Path("data/site")
 OUT = SITE / "svg"
 W = 720  # viewBox width; height varies per panel
+MOBILE_W = 360
 
 
 def load(name: str):
@@ -149,6 +150,89 @@ def stacked_pct(groups, title, desc, legend_items):
             x += w
     h = top + len(groups) * (row_h + gap)
     return svg(head + "".join(body), h, title, desc)
+
+
+def grouped_mobile(rows, label_key, a_key, b_key, title, desc=""):
+    """Narrow grouped bars with labels above the marks, not beside them."""
+    top, row_h, gap, bar_h = 34, 49, 6, 12
+    plot, value_gap = 292, 7
+    vmax = max(max(r[a_key], r[b_key]) for r in rows) or 1
+    body = [
+        '<rect class="bar bar-1" x="0" y="2" width="10" height="10"/>'
+        '<text class="label-muted" x="16" y="11">endpoints</text>'
+        '<rect class="bar bar-2" x="122" y="2" width="10" height="10"/>'
+        '<text class="label-muted" x="138" y="11">hosts</text>'
+    ]
+    for i, r in enumerate(rows):
+        y = top + i * (row_h + gap)
+        body.append(f'<g class="step"><text class="label" x="0" y="{y}">{esc(r[label_key])}</text>')
+        for j, (key, cls) in enumerate(((a_key, "bar-1"), (b_key, "bar-2"))):
+            yy = y + 9 + j * (bar_h + 4)
+            width = max(2, round(plot * r[key] / vmax))
+            body.append(
+                f'<rect class="bar {cls}" x="0" y="{yy}" width="{width}" height="{bar_h}"/>'
+                f'<text class="value" x="{width + value_gap}" y="{yy + 10}">{r[key]:,}</text>'
+            )
+        body.append('</g>')
+    height = top + len(rows) * (row_h + gap)
+    return svg("".join(body), height, title, desc, width=MOBILE_W)
+
+
+def hbars_mobile(rows, label_key, value_key, cls_for, title, desc=""):
+    """Narrow ranked bars; long labels get their own line above each mark."""
+    top, row_h, gap, bar_h = 8, 38, 8, 18
+    plot, value_gap = 284, 8
+    vmax = max(r[value_key] for r in rows) or 1
+    body = []
+    for i, r in enumerate(rows):
+        y = top + i * (row_h + gap)
+        width = max(2, round(plot * r[value_key] / vmax))
+        body.append(
+            f'<g class="step">'
+            f'<text class="label" x="0" y="{y + 14}">{esc(r[label_key])}</text>'
+            f'<rect class="bar {cls_for(i, r)}" x="0" y="{y + 20}" width="{width}" height="{bar_h}"/>'
+            f'<text class="value" x="{width + value_gap}" y="{y + 34}">{r[value_key]:,}</text>'
+            f'</g>'
+        )
+    height = top + len(rows) * (row_h + gap)
+    return svg("".join(body), height, title, desc, width=MOBILE_W)
+
+
+def stacked_pct_mobile(groups, title, desc, legend_items):
+    """Narrow compositions with a wrapped legend and labels above each bar."""
+    plot, bar_h = 352, 34
+    body = []
+    for i, (label, cls) in enumerate(legend_items):
+        x = (i % 2) * 180
+        y = (i // 2) * 22 + 2
+        body.append(
+            f'<rect class="bar {cls}" x="{x}" y="{y}" width="10" height="10"/>'
+            f'<text class="label-muted" x="{x + 16}" y="{y + 9}">{esc(label)}</text>'
+        )
+    top, row_h, gap = 64, 50, 10
+    for i, (group, segs) in enumerate(groups):
+        y = top + i * (row_h + gap)
+        total = sum(value for _, value, _ in segs) or 1
+        body.append(
+            f'<text class="label" x="0" y="{y}">{esc(group)}</text>'
+            f'<text class="label-muted" x="{plot}" y="{y}" text-anchor="end">{total:,} servers</text>'
+        )
+        x = 0.0
+        for _, value, cls in segs:
+            width = plot * value / total
+            pct = 100 * value / total
+            body.append(
+                f'<rect class="bar {cls}" x="{x:.1f}" y="{y + 10}" '
+                f'width="{max(width, 0.5):.1f}" height="{bar_h}"/>'
+            )
+            if pct >= 11:
+                body.append(
+                    f'<text class="value" x="{x + width / 2:.1f}" y="{y + 32}" '
+                    f'text-anchor="middle">{pct:.0f}%</text>'
+                )
+            x += width
+    height = top + len(groups) * (row_h + gap)
+    return svg("".join(body), height, title, desc, width=MOBILE_W)
 
 
 def access_journey(rows):
@@ -306,10 +390,19 @@ def main() -> None:
         "Auth posture, by endpoint and by host",
         "The two units disagree because a few operators register many endpoints.",
         legend_items=[("endpoints", "bar-1"), ("hosts", "bar-2")])))
+    written.append(("posture_mobile", grouped_mobile(
+        posture, "posture", "endpoints", "hosts",
+        "Auth posture, by endpoint and by host",
+        "The two units disagree because a few operators register many endpoints.")))
 
     # 4. Concentration -- single accent on the outlier, neutral for the rest.
     conc = load("concentration")[:8]
     written.append(("concentration", hbars(
+        conc, "host", "endpoints",
+        lambda i, r: "bar-accent" if i == 0 else "bar-1",
+        "Endpoint concentration by host",
+        "One host accounts for about an eighth of every remote endpoint.")))
+    written.append(("concentration_mobile", hbars_mobile(
         conc, "host", "endpoints",
         lambda i, r: "bar-accent" if i == 0 else "bar-1",
         "Endpoint concentration by host",
@@ -346,6 +439,13 @@ def main() -> None:
         if sum(v for _, v, _ in segs):
             groups.append((posture, segs))
     written.append(("sensitivity", stacked_pct(
+        groups,
+        "What sits behind each posture",
+        "Servers by the highest-sensitivity capability inferred from their metadata. "
+        "Required-auth servers never show a tool list, so their labels rest on name "
+        "and description alone.",
+        SENS)))
+    written.append(("sensitivity_mobile", stacked_pct_mobile(
         groups,
         "What sits behind each posture",
         "Servers by the highest-sensitivity capability inferred from their metadata. "
